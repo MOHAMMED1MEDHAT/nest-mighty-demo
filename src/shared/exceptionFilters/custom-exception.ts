@@ -5,6 +5,7 @@ export class CustomException extends Error {
 		public readonly message: string,
 		public readonly level: ExceptionLevels,
 	) {
+		message += ` - ${level}`;
 		super(message);
 	}
 }

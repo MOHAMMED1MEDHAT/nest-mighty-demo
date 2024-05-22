@@ -1,4 +1,35 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { GetUser } from 'src/auth/decorators';
+import { jwtGard } from 'src/auth/guards/jwt.guard';
+import { ActivityInterceptor } from 'src/shared/interceptors/activity.interceptor';
+import { User } from 'src/user/entities';
+import { Task } from './entities';
+import { TaskService } from './task.service';
 
-@Controller('task')
-export class TaskController {}
+@Controller('tasks')
+@UseGuards(jwtGard)
+export class TaskController {
+	constructor(private taskService: TaskService) {}
+
+	@Get()
+	@UseInterceptors(ActivityInterceptor)
+	getTasks(@GetUser() user: User): Promise<Task> {
+		return this.taskService.createTask(user);
+	}
+
+	// @Get('/:id')
+	// getTaskById() {
+	// 	return 'Task by id';
+	// }
+
+	// @Get('/:owner')
+	// getTaskByOwner() {
+	// 	return 'Task by owner';
+	// }
+
+	@Post()
+	@UseInterceptors(ActivityInterceptor)
+	createTask(@GetUser() user: User): Promise<Task> {
+		return this.taskService.createTask(user);
+	}
+}
