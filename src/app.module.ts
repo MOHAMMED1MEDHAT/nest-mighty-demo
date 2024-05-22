@@ -1,15 +1,46 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { TaskModule } from './task/task.module';
+import configs from './configs';
 import { HistoryModule } from './history/history.module';
+import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
-import { UaserService } from './uaser/uaser.service';
 
 @Module({
-  imports: [AuthModule, TaskModule, HistoryModule, UserModule],
-  controllers: [AppController],
-  providers: [AppService, UaserService],
+	imports: [
+		// ConfigModule.forRoot({
+		// 	load: configs,
+		// 	isGlobal: true,
+		// 	cache: true,
+		// 	ignoreEnvFile: false,
+		// 	envFilePath: `.env.${process.env.NODE_ENV}`,
+		// }),
+		ConfigModule.forRoot({
+			load: configs,
+			isGlobal: true,
+			cache: true,
+			ignoreEnvFile: false,
+			envFilePath: `.env.development`,
+		}),
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => {
+				return {
+					type: 'postgres',
+					host: configService.get('database.host'),
+					port: configService.get('database.port'),
+					username: configService.get('database.username'),
+					password: configService.get('database.password'),
+					entities: [__dirname + '/**/*.entity{.ts,.js}'],
+					synchronize: true,
+				};
+			},
+		}),
+		AuthModule,
+		TaskModule,
+		HistoryModule,
+		UserModule,
+	],
 })
 export class AppModule {}
