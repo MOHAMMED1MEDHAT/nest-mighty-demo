@@ -1,6 +1,7 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 import * as argon from 'argon2';
+import { Task } from 'src/task/entities';
 
 @Entity('users')
 @Unique(['email'])
