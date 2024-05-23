@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { CustomException } from 'src/shared/exceptionFilters/custom-exception';
-import { ExceptionLevels } from 'src/shared/exceptionFilters/enums/exception-levels.enum';
+import { CustomException } from 'src/shared/exceptionFilters/exceptions';
 import { User } from 'src/user/entities';
 import { UserRepository } from 'src/user/repositories/user.repository';
 import { AuthDto } from './dto';
@@ -25,7 +24,7 @@ export class AuthService {
 		// 	throw new UnauthorizedException('Invalid Credentials');
 		// }
 		if (!user) {
-			throw new CustomException('Invalid Credentials', ExceptionLevels.CRITICAL);
+			throw new CustomException('Invalid Credentials');
 		}
 
 		const payload: JwtPayload = { email: user.email };

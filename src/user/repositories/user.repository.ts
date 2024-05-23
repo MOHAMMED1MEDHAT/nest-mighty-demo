@@ -1,7 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AuthDto } from 'src/auth/dto';
-import { CustomException } from 'src/shared/exceptionFilters/custom-exception';
-import { ExceptionLevels } from 'src/shared/exceptionFilters/enums/exception-levels.enum';
+import { DBExceptionTypes } from 'src/shared/exceptionFilters/enums';
+import { InternalExceptionTypes } from 'src/shared/exceptionFilters/enums/internal-exception-levels.enum';
+import {
+	DBException,
+	InternalException,
+} from 'src/shared/exceptionFilters/exceptions';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../entities';
 
@@ -30,9 +34,9 @@ export class UserRepository extends Repository<User> {
 		} catch (err) {
 			this.logger.error(err.message);
 			if (err.code === '23505') {
-				throw new CustomException('data already exists', ExceptionLevels.DB);
+				throw new DBException(DBExceptionTypes.EXISTS);
 			} else {
-				throw new CustomException('Internal Server Error', ExceptionLevels.PROCESSING);
+				throw new InternalException(InternalExceptionTypes.CRITICAL);
 			}
 		}
 	}

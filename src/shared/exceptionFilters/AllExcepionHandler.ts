@@ -1,33 +1,92 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+	ArgumentsHost,
+	Catch,
+	ExceptionFilter,
+	HttpStatus,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
-import { CustomException } from './custom-exception';
-import { ExceptionLevels } from './enums/exception-levels.enum';
+import {
+	DBExceptionMsgsAr,
+	DBExceptionMsgsEn,
+	DBExceptionTypes,
+} from './enums';
+import {
+	InternalExceptionMsgsAr,
+	InternalExceptionMsgsEn,
+	InternalExceptionTypes,
+} from './enums/internal-exception-levels.enum';
+import { CustomException, DBException, InternalException } from './exceptions';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-	constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+	constructor(
+		private readonly httpAdapterHost: HttpAdapterHost,
+		private readonly configService: ConfigService,
+	) {}
 
-	catch(exception: CustomException, host: ArgumentsHost): void {
+	private objectHandler = {
+		[DBException.name]: this.DBExceptionHandler,
+		[InternalException.name]: this.InternalExceptionHandler,
+		default: this.DefaultExceptionHandler,
+	};
+
+	catch(exception: unknown, host: ArgumentsHost): void {
 		const { httpAdapter } = this.httpAdapterHost;
+		const ctx = host.switchToHttp();
 
-		let httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-
-		switch (exception.level) {
-			case ExceptionLevels.DB:
-				httpStatus = HttpStatus.CONFLICT;
-				break;
-			case ExceptionLevels.PROCESSING:
-				httpStatus = HttpStatus.BAD_REQUEST;
-				break;
-		}
+		const httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+		// const customException = this.objectHandler[typeof exception];
+		// console.log('customException', exception.constructor.name);
+		const customException: CustomException = this.objectHandler[
+			exception.constructor.name
+		](exception, this.configService);
 
 		const responseBody = {
 			statusCode: httpStatus,
 			timestamp: new Date().toISOString(),
-			message: exception.message,
-			path: httpAdapter.getRequestUrl(host.switchToHttp().getRequest()),
+			message: customException.message,
+			path: httpAdapter.getRequestUrl(ctx.getRequest()),
 		};
 
-		httpAdapter.reply(host.switchToHttp().getResponse(), responseBody, httpStatus);
+		httpAdapter.reply(
+			host.switchToHttp().getResponse(),
+			responseBody,
+			httpStatus,
+		);
+	}
+
+	private DBExceptionHandler(
+		exception: any,
+		configService: ConfigService,
+	): CustomException {
+		exception = <DBException>exception;
+		const message =
+			exception.type === DBExceptionTypes.EXISTS
+				? configService.get<string>('app.lang').toUpperCase() === 'EN'
+					? DBExceptionMsgsEn.EXISTS
+					: DBExceptionMsgsAr.EXISTS
+				: configService.get<string>('app.lang').toUpperCase() === 'EN'
+					? DBExceptionMsgsEn.NOT_FOUND
+					: DBExceptionMsgsAr.NOT_FOUND;
+		return new CustomException(message);
+	}
+	private InternalExceptionHandler(
+		exception: any,
+		configService: ConfigService,
+	): CustomException {
+		exception = <InternalException>exception;
+		const message =
+			exception.type === InternalExceptionTypes.CRITICAL
+				? configService.get<string>('app.lang').toUpperCase() === 'EN'
+					? InternalExceptionMsgsEn.CRITICAL
+					: InternalExceptionMsgsAr.CRITICAL
+				: configService.get<string>('app.lang').toUpperCase() === 'EN'
+					? InternalExceptionMsgsEn.WARNING
+					: InternalExceptionMsgsAr.WARNING;
+		return new CustomException(message);
+	}
+	private DefaultExceptionHandler(exception: any): CustomException {
+		return new CustomException('Internal server error');
 	}
 }
