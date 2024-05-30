@@ -1,5 +1,7 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import configs from './configs';
@@ -36,6 +38,10 @@ import { UserModule } from './user/user.module';
 					synchronize: true,
 				};
 			},
+		}),
+		GraphQLModule.forRoot<ApolloDriverConfig>({
+			autoSchemaFile: true,
+			driver: ApolloDriver,
 		}),
 		AuthModule,
 		TaskModule,
