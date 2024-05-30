@@ -23,7 +23,7 @@ import { UserModule } from './user/user.module';
 			isGlobal: true,
 			cache: true,
 			ignoreEnvFile: false,
-			envFilePath: `.env.development`,
+			envFilePath: `.env.production`,
 		}),
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
@@ -34,7 +34,7 @@ import { UserModule } from './user/user.module';
 					port: configService.get('database.port'),
 					username: configService.get('database.username'),
 					password: configService.get('database.password'),
-					// database: configService.get('database.name'),
+					database: configService.get('database.name'),
 					entities: [__dirname + '/**/*.entity{.ts,.js}'],
 					synchronize: true,
 				};
