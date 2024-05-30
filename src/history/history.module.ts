@@ -1,13 +1,13 @@
 import { Global, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { History } from './entities/history.entity';
+import { UserModule } from 'src/user/user.module';
 import { HistoryController } from './history.controller';
+import { HistoryResolver } from './history.resolver';
 import { HistoryRepository } from './repositories/history.repository';
 @Global()
 @Module({
-	imports: [TypeOrmModule.forFeature([History])],
+	imports: [UserModule],
 	controllers: [HistoryController],
-	providers: [HistoryRepository],
+	providers: [HistoryRepository, HistoryResolver],
 	exports: [HistoryRepository],
 })
 export class HistoryModule {}
