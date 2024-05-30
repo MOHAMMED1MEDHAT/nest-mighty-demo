@@ -28,7 +28,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	private objectHandler = {
 		[DBException.name]: this.DBExceptionHandler,
 		[InternalException.name]: this.InternalExceptionHandler,
-		default: this.DefaultExceptionHandler,
 	};
 
 	catch(exception: unknown, host: ArgumentsHost): void {
@@ -37,10 +36,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
 		const httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 		// const customException = this.objectHandler[typeof exception];
-		// console.log('customException', exception.constructor.name);
-		const customException: CustomException = this.objectHandler[
-			exception.constructor.name
-		](exception, this.configService);
+
+		let customException: CustomException;
+
+		if (
+			exception.constructor.name === DBException.name ||
+			exception.constructor.name === InternalException.name
+		) {
+			customException = this.objectHandler[exception.constructor.name](
+				exception,
+				this.configService,
+			);
+		} else {
+			customException = this.DefaultExceptionHandler(
+				exception,
+				this.configService,
+			);
+		}
 
 		const responseBody = {
 			statusCode: httpStatus,
@@ -71,6 +83,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 					: DBExceptionMsgsAr.NOT_FOUND;
 		return new CustomException(message);
 	}
+
 	private InternalExceptionHandler(
 		exception: any,
 		configService: ConfigService,
@@ -86,7 +99,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
 					: InternalExceptionMsgsAr.WARNING;
 		return new CustomException(message);
 	}
-	private DefaultExceptionHandler(exception: any): CustomException {
-		return new CustomException('Internal server error');
+
+	private DefaultExceptionHandler(
+		exception: any,
+		configService: ConfigService,
+	): CustomException {
+		return new CustomException('Internal server error:' + exception.message);
 	}
 }
