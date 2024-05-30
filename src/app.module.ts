@@ -34,14 +34,25 @@ import { UserModule } from './user/user.module';
 					port: configService.get('database.port'),
 					username: configService.get('database.username'),
 					password: configService.get('database.password'),
+					// database: configService.get('database.name'),
 					entities: [__dirname + '/**/*.entity{.ts,.js}'],
 					synchronize: true,
 				};
 			},
 		}),
-		GraphQLModule.forRoot<ApolloDriverConfig>({
-			autoSchemaFile: true,
+		GraphQLModule.forRootAsync<ApolloDriverConfig>({
 			driver: ApolloDriver,
+			useFactory: () => {
+				return {
+					autoSchemaFile: true,
+					formatError: (error): { message: string; code: unknown } => {
+						return {
+							message: error.message,
+							code: error.extensions?.code,
+						};
+					},
+				};
+			},
 		}),
 		AuthModule,
 		TaskModule,

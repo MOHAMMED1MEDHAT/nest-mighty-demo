@@ -9,7 +9,6 @@ async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule);
 	app.setGlobalPrefix('api/v1');
 	app.useGlobalFilters(
-		// new AllExceptionsFilter(app.get(ConfigService), app.get(HttpAdapterHost)),
 		new AllExceptionsFilter(app.get(HttpAdapterHost), app.get(ConfigService)),
 	);
 	app.useGlobalPipes(
