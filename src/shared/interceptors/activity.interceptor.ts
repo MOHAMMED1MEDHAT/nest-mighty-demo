@@ -28,7 +28,7 @@ export class ActivityInterceptor implements NestInterceptor {
 	constructor(private historyRepository: HistoryRepository) {}
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 		const request = context.switchToHttp().getRequest();
-		return next.handle().pipe(
+		return next.handle().pipe<Observable<any>>(
 			map((data) => {
 				const history = new History();
 				history.creator = request.user.id;
