@@ -1,4 +1,10 @@
-import { Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators';
 import { jwtGard } from 'src/auth/guards/jwt.guard';
 import { ActivityInterceptor } from 'src/shared/interceptors/activity.interceptor';

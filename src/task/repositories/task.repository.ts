@@ -43,7 +43,11 @@ export class TaskRepository extends Repository<Task> {
 	}
 
 	async getTaskById(id: number): Promise<Task> {
-		return await this.findOne({ where: { id } });
+		const task = await this.findOne({ where: { id } });
+		if (!task) {
+			throw new DBException(DBExceptionTypes.NOT_FOUND);
+		}
+		return task;
 	}
 
 	async getTaskByOwnerId(owner: User): Promise<Task> {

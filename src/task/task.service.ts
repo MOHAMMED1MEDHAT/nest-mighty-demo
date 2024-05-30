@@ -8,13 +8,13 @@ import { TaskRepository } from './repositories/task.repository';
 export class TaskService {
 	constructor(private taskRepository: TaskRepository) {}
 
-	getTasks(): Promise<Task[]> {
-		return this.taskRepository.findAll({});
+	getTasks(query: unknown): Promise<Task[]> {
+		return this.taskRepository.findAll(query || {});
 	}
 
-	// getTaskById() {
-	// 	return 'Task by id';
-	// }
+	getTaskById(taskId: number): Promise<Task> {
+		return this.taskRepository.getTaskById(taskId);
+	}
 
 	// getTaskByOwner() {
 	// 	return 'Task by owner';
