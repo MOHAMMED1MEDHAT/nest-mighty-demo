@@ -12,23 +12,23 @@ import { TaskStatus } from '../enums';
 @ObjectType()
 @Entity('tasks')
 export class Task extends BaseEntity {
-	@Field((type) => Int, { description: 'Task ID' })
+	@Field(() => Int, { description: 'Task ID' })
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Field((type) => String, { description: 'Task title' })
+	@Field(() => String, { description: 'Task title' })
 	@Column()
 	title: string;
 
-	@Field((type) => String, { description: 'Task description' })
+	@Field(() => String, { description: 'Task description' })
 	@Column()
 	description: string;
 
-	@Field((type) => String, { description: 'Task status' })
+	@Field(() => String, { description: 'Task status' })
 	@Column()
 	status: TaskStatus;
 
-	@Field((type) => User, { description: 'Task owner' })
+	@Field(() => User, { description: 'Task owner' })
 	@ManyToOne(() => User, (user) => user.tasks, { eager: true })
 	owner: User;
 }
