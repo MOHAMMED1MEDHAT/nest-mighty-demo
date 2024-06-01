@@ -40,4 +40,12 @@ export class HistoryRepository extends Repository<History> {
 
 		return History;
 	}
+
+	async getHistoryById(id: number): Promise<History> {
+		const History = await this.findOne({ where: { id } });
+		if (!History) {
+			throw new DBException(DBExceptionTypes.NOT_FOUND);
+		}
+		return History;
+	}
 }

@@ -1,5 +1,7 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import configs from './configs';
@@ -21,19 +23,36 @@ import { UserModule } from './user/user.module';
 			isGlobal: true,
 			cache: true,
 			ignoreEnvFile: false,
-			envFilePath: `.env.development`,
+			envFilePath: `.env.production`,
 		}),
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
 				return {
 					type: 'postgres',
+					ssl: true,
+					// url: configService.get('database.url'),
 					host: configService.get('database.host'),
 					port: configService.get('database.port'),
 					username: configService.get('database.username'),
 					password: configService.get('database.password'),
+					database: configService.get('database.name'),
 					entities: [__dirname + '/**/*.entity{.ts,.js}'],
 					synchronize: true,
+				};
+			},
+		}),
+		GraphQLModule.forRootAsync<ApolloDriverConfig>({
+			driver: ApolloDriver,
+			useFactory: () => {
+				return {
+					autoSchemaFile: true,
+					formatError: (error): { message: string; code: unknown } => {
+						return {
+							message: error.message,
+							code: error.extensions?.code,
+						};
+					},
 				};
 			},
 		}),

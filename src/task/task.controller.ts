@@ -1,4 +1,10 @@
-import { Controller, Get, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators';
 import { jwtGard } from 'src/auth/guards/jwt.guard';
 import { ActivityInterceptor } from 'src/shared/interceptors/activity.interceptor';
@@ -13,8 +19,8 @@ export class TaskController {
 
 	@Get()
 	@UseInterceptors(ActivityInterceptor)
-	getTasks(@GetUser() user: User): Promise<Task> {
-		return this.taskService.createTask(user);
+	async getTasks(@GetUser() user: User): Promise<Task[]> {
+		return await this.taskService.getTasks();
 	}
 
 	// @Get('/:id')
@@ -30,6 +36,6 @@ export class TaskController {
 	@Post()
 	@UseInterceptors(ActivityInterceptor)
 	createTask(@GetUser() user: User): Promise<Task> {
-		return this.taskService.createTask(user);
+		return this.taskService.createTaskTemp(user);
 	}
 }

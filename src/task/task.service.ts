@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/user/entities';
+import { CreateTaskDto } from './dtos';
 import { Task } from './entities';
 import { TaskStatus } from './enums';
 import { TaskRepository } from './repositories/task.repository';
@@ -8,19 +9,28 @@ import { TaskRepository } from './repositories/task.repository';
 export class TaskService {
 	constructor(private taskRepository: TaskRepository) {}
 
-	getTasks(): Promise<Task[]> {
-		return this.taskRepository.findAll({});
+	async getTasks(query?: unknown): Promise<Task[]> {
+		return await this.taskRepository.findAll(query || {});
 	}
 
-	// getTaskById() {
-	// 	return 'Task by id';
-	// }
+	getTaskById(taskId: number): Promise<Task> {
+		return this.taskRepository.getTaskById(taskId);
+	}
 
 	// getTaskByOwner() {
 	// 	return 'Task by owner';
 	// }
 
-	createTask(user: User): Promise<Task> {
+	createTaskForUser(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
+		const task = new Task();
+		task.owner = user;
+		task.title = createTaskDto.title;
+		task.description = createTaskDto.description;
+		task.status = createTaskDto.status;
+		return this.taskRepository.createTask(task);
+	}
+
+	createTaskTemp(user: User): Promise<Task> {
 		const task = new Task();
 		task.owner = user;
 		task.title = 'Task 1';
