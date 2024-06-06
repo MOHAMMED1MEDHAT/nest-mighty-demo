@@ -6,14 +6,14 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { GetUser } from 'src/auth/decorators';
-import { jwtGard } from 'src/auth/guards/jwt.guard';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { ActivityInterceptor } from 'src/shared/interceptors/activity.interceptor';
 import { User } from 'src/user/entities';
 import { Task } from './entities';
 import { TaskService } from './task.service';
 
 @Controller('tasks')
-@UseGuards(jwtGard)
+@UseGuards(JwtGuard)
 export class TaskController {
 	constructor(private taskService: TaskService) {}
 

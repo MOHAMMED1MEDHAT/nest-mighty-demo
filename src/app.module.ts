@@ -1,16 +1,20 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GraphQLModule } from '@nestjs/graphql';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import configs from './configs';
+import { GqlModule } from './gql/gql.module';
 import { HistoryModule } from './history/history.module';
 import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
 
 @Module({
 	imports: [
+		JwtModule.register({
+			secret: process.env.JWT_SECRET,
+			signOptions: { expiresIn: '7d' },
+		}),
 		// ConfigModule.forRoot({
 		// 	load: configs,
 		// 	isGlobal: true,
@@ -23,14 +27,14 @@ import { UserModule } from './user/user.module';
 			isGlobal: true,
 			cache: true,
 			ignoreEnvFile: false,
-			envFilePath: `.env.production`,
+			envFilePath: `.env.development`,
 		}),
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
 				return {
 					type: 'postgres',
-					ssl: true,
+					// ssl: true,
 					// url: configService.get('database.url'),
 					host: configService.get('database.host'),
 					port: configService.get('database.port'),
@@ -42,24 +46,16 @@ import { UserModule } from './user/user.module';
 				};
 			},
 		}),
-		GraphQLModule.forRootAsync<ApolloDriverConfig>({
-			driver: ApolloDriver,
-			useFactory: () => {
-				return {
-					autoSchemaFile: true,
-					formatError: (error): { message: string; code: unknown } => {
-						return {
-							message: error.message,
-							code: error.extensions?.code,
-						};
-					},
-				};
-			},
-		}),
+		GqlModule,
 		AuthModule,
 		TaskModule,
 		HistoryModule,
 		UserModule,
 	],
 })
-export class AppModule {}
+export class AppModule {
+	// export class AppModule implements NestModule {
+	// configure(consumer: MiddlewareConsumer): void {
+	// 	// consumer.apply(TokenDecoder).forRoutes('*');
+	// }
+}

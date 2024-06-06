@@ -16,31 +16,31 @@ import { Task } from 'src/task/entities';
 @Entity('users')
 @Unique(['email'])
 export class User extends BaseEntity {
-	@Field((type) => Int)
+	@Field(() => Int)
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@Field((type) => String)
+	@Field(() => String)
 	@Column()
 	firstName: string;
 
-	@Field((type) => String)
+	@Field(() => String)
 	@Column()
 	lastName: string;
 
-	@Field((type) => String)
+	@Field(() => String)
 	@Column()
 	email: string;
 
-	@Field((type) => String)
+	@Field(() => String)
 	@Column()
 	password: string;
 
-	@Field((type) => [Task])
+	@Field(() => [Task])
 	@OneToMany(() => Task, (task) => task.owner, { eager: false })
 	tasks: Task[];
 
-	@Field((type) => [History])
+	@Field(() => [History])
 	@OneToMany(() => History, (history) => history.creator, { eager: false })
 	activities: History[];
 
