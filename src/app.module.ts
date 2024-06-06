@@ -1,11 +1,10 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { GraphQLModule } from '@nestjs/graphql';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import configs from './configs';
+import { GqlModule } from './gql/gql.module';
 import { HistoryModule } from './history/history.module';
 import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
@@ -47,24 +46,16 @@ import { UserModule } from './user/user.module';
 				};
 			},
 		}),
-		GraphQLModule.forRootAsync<ApolloDriverConfig>({
-			driver: ApolloDriver,
-			useFactory: () => {
-				return {
-					autoSchemaFile: true,
-					formatError: (error): { message: string; code: unknown } => {
-						return {
-							message: error.message,
-							code: error.extensions?.code,
-						};
-					},
-				};
-			},
-		}),
+		GqlModule,
 		AuthModule,
 		TaskModule,
 		HistoryModule,
 		UserModule,
 	],
 })
-export class AppModule {}
+export class AppModule {
+	// export class AppModule implements NestModule {
+	// configure(consumer: MiddlewareConsumer): void {
+	// 	// consumer.apply(TokenDecoder).forRoutes('*');
+	// }
+}
