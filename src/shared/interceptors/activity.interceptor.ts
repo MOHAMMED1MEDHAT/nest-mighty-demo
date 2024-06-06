@@ -2,6 +2,7 @@ import {
 	CallHandler,
 	ExecutionContext,
 	Injectable,
+	Logger,
 	NestInterceptor,
 } from '@nestjs/common';
 import { Observable, map } from 'rxjs';
@@ -25,10 +26,12 @@ import { HistoryRepository } from 'src/history/repositories/history.repository';
 //!interceptor in Observable handling mode
 @Injectable()
 export class ActivityInterceptor implements NestInterceptor {
+	private logger = new Logger(ActivityInterceptor.name);
 	constructor(private historyRepository: HistoryRepository) {}
-	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+	intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+		this.logger.debug('ActivityInterceptor called');
 		const request = context.switchToHttp().getRequest();
-		return next.handle().pipe<Observable<any>>(
+		return next.handle().pipe<Observable<unknown>>(
 			map((data) => {
 				const history = new History();
 				history.creator = request.user.id;
