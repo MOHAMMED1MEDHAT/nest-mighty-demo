@@ -3,6 +3,7 @@ import {
 	Catch,
 	ExceptionFilter,
 	HttpStatus,
+	Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
@@ -20,6 +21,7 @@ import { CustomException, DBException, InternalException } from './exceptions';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+	private logger = new Logger(AllExceptionsFilter.name);
 	constructor(
 		private readonly httpAdapterHost: HttpAdapterHost,
 		private readonly configService: ConfigService,
@@ -31,6 +33,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	};
 
 	catch(exception: unknown, host: ArgumentsHost): void {
+		this.logger.error(exception);
 		const { httpAdapter } = this.httpAdapterHost;
 		const ctx = host.switchToHttp();
 
