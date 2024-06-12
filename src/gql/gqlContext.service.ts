@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { TokenDecoder } from 'src/auth/interceptors';
+import { User } from 'src/user/entities';
 
 @Injectable()
 export class GqlContextService {
 	constructor(private readonly tokenDecoder: TokenDecoder) {}
 
-	handle(): ({ req, res }) => object {
+	handle(): ({ req, res }) => {
+		req: unknown;
+		res: unknown;
+		user: User;
+		dummy: string;
+	} {
 		return ({ req, res }) => {
-			let result: object = {};
-			result = { ...result, ...this.tokenDecoder.decode({ req, res }) };
-			return result;
+			return {
+				req,
+				res,
+				user: this.tokenDecoder.decode({ req, res }).user,
+				dummy: this.dummy({ req, res }).dummy,
+			};
 		};
+	}
+
+	private dummy({ req, res }): { dummy: string } {
+		return { dummy: 'dummy' };
 	}
 }
