@@ -27,10 +27,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		private readonly configService: ConfigService,
 	) {}
 
-	private objectHandler = {
-		[DBException.name]: this.DBExceptionHandler,
-		[InternalException.name]: this.InternalExceptionHandler,
-	};
+	// private objectHandler = {
+	// 	DBException: this.DBExceptionHandler,
+	// 	InternalException: this.InternalExceptionHandler,
+	// };
 
 	catch(exception: unknown, host: ArgumentsHost): void {
 		this.logger.error(exception);
@@ -42,12 +42,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
 		let customException: CustomException;
 
-		if (
-			exception.constructor.name === DBException.name ||
-			exception.constructor.name === InternalException.name
-		) {
-			customException = this.objectHandler[exception.constructor.name](
-				exception,
+		if (this.isDBException(exception)) {
+			customException = this.DBExceptionHandler(
+				exception as DBException,
+				this.configService,
+			);
+		} else if (this.isInternalException(exception)) {
+			customException = this.InternalExceptionHandler(
+				exception as InternalException,
 				this.configService,
 			);
 		} else {
@@ -72,10 +74,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	}
 
 	private DBExceptionHandler(
-		exception: any,
+		exception: DBException,
 		configService: ConfigService,
 	): CustomException {
-		exception = <DBException>exception;
+		exception = exception as DBException;
 		const message =
 			exception.type === DBExceptionTypes.EXISTS
 				? configService.get<string>('app.lang').toUpperCase() === 'EN'
@@ -88,7 +90,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	}
 
 	private InternalExceptionHandler(
-		exception: any,
+		exception: InternalException,
 		configService: ConfigService,
 	): CustomException {
 		exception = <InternalException>exception;
@@ -108,5 +110,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		configService: ConfigService,
 	): CustomException {
 		return new CustomException('Internal server error:' + exception.message);
+	}
+
+	private isDBException(exception: unknown): exception is DBException {
+		return exception instanceof DBException;
+	}
+
+	private isInternalException(
+		exception: unknown,
+	): exception is InternalException {
+		return exception instanceof InternalException;
 	}
 }
