@@ -1,13 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as _ from 'lodash';
+import { User } from 'src/user/entities';
 
 @Injectable()
 export class TokenDecoder {
 	private logger = new Logger(TokenDecoder.name);
 	constructor(private readonly jwtService: JwtService) {}
 
-	decode({ req, res }): object {
+	decode({ req, res }): { user: User } {
 		this.logger.debug('TokenDecoder intercept called');
 		const accessToken = _.get(req, 'headers.authorization', '').replace(
 			/^Bearer\s/,
@@ -29,7 +30,7 @@ export class TokenDecoder {
 			// if (decoded.role == 'user') {
 			// 	if (!decoded.isVerified || decoded.isSuspended) return next()}
 
-			return { req, res, user };
+			return { user };
 		}
 
 		if (expired && refreshToken !== '') {
@@ -42,10 +43,10 @@ export class TokenDecoder {
 				secret: process.env.JWT_SECRET,
 			});
 
-			return { req, res, user: decoded };
+			return { user: decoded };
 		}
 
-		return { req, res };
+		return { user: null };
 	}
 }
 // @Injectable()
