@@ -10,6 +10,7 @@ import { Observable, map } from 'rxjs';
 import { History } from 'src/history/entities/history.entity';
 import { HistoryRepository } from 'src/history/repositories/history.repository';
 
+//REFACTOR: Implement the interceptor in Observable handling mode not before
 // @Injectable()
 // export class ActivityInterceptor implements NestInterceptor {
 // 	constructor(private historyRepository: HistoryRepository) {}
@@ -23,7 +24,6 @@ import { HistoryRepository } from 'src/history/repositories/history.repository';
 // 	}
 // }
 
-//REFACTOR: Implement the interceptor in Observable handling mode not before
 //!interceptor in Observable handling mode
 @Injectable()
 export class ActivityInterceptor implements NestInterceptor {
